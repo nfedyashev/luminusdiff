@@ -81,8 +81,9 @@
 
 (defn foo []
   (let [;; versions recent-versions
-        versions '("3.82" ;; "3.81" "3.80"
-                   )
+        ;; versions '("3.82" ;; "3.81" "3.80"
+        ;;            )
+        versions (retrieve-lein-template-versions)
         _all-combinations (all-combinations versions)
         missing-version-options (remove
                               (set (retrieve-branches))
