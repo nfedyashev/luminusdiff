@@ -1,9 +1,8 @@
-name: Smoke tests
+name: Check for new luminus releases
 
 on:
-  push:
-    branches:
-      - master
+  schedule:
+    - cron: "0 0 * * *"
 
 jobs:
   test-all-together-with-latest-versions:
