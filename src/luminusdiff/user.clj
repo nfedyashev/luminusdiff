@@ -23,6 +23,9 @@
 (defn sh-exec [& rest]
   (let [result (apply clojure.java.shell/sh rest)]
     (println result)
+
+    ;;  Assert failed: {:exit 1, :out "On branch 2.9.12.71+shadow-cljs\nnothing to
+    ;; commit, working tree clean\n", :err ""} (= 0 (:exit result))
     (assert (= 0 (:exit result)) result)))
 
 (defn lein-generate-from-template [version option]
