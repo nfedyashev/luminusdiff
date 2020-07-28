@@ -86,7 +86,7 @@
 (defn foo []
   (let [oldest-version "2.9.12.70"
         versions (->> (retrieve-lein-template-versions)
-                      (filter #(= 1 (version-compare oldest-version %1))))
+                      (filter #(= 1 (version-compare %1 oldest-version))))
 
         _all-combinations (all-combinations versions)
         missing-version-options (remove
