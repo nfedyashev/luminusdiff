@@ -7,7 +7,8 @@
    [clojure.string]
    [clojure.java.shell]
    [clojure.edn :as edn]
-   [clojure.java.io :as io]))
+   [clojure.java.io :as io])
+  (:use version-clj.core))
 
 (defn retrieve-lein-template-versions []
   (let [response (client/get "https://clojars.org/api/artifacts/luminus/lein-template" {:accept :edn})
@@ -83,10 +84,10 @@
           versions))))
 
 (defn foo []
-  (let [;; versions recent-versions
-        ;; versions '("3.82" ;; "3.81" "3.80"
-        ;;            )
-        versions (retrieve-lein-template-versions)
+  (let [oldest-version "2.9.12.70"
+        versions (->> (retrieve-lein-template-versions)
+                      (filter #(= 1 (version-compare oldest-version %1))))
+
         _all-combinations (all-combinations versions)
         missing-version-options (remove
                               (set (retrieve-branches))
@@ -101,3 +102,4 @@
         ;; NOTE: option could be blank
         ;; (println version option)
         (generate-template-and-git-push version option)))))
+
