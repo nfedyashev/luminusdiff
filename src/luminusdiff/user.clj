@@ -1,32 +1,28 @@
-
 (ns luminusdiff.user
   (:refer-clojure :exclude [==])
   (:require
    [luminusdiff.config :as config]
    [clj-http.client :as client]
-   [clojure.string]
-   [clojure.java.shell]
+   [clojure.string :as str]
+   [clojure.java.shell :refer [sh]]
    [clojure.edn :as edn]
    [clojure.java.io :as io])
   (:use version-clj.core))
 
 (defn retrieve-lein-template-versions []
+  "Retrieve lein-template versions from clojars.org"
   (let [response (client/get "https://clojars.org/api/artifacts/luminus/lein-template" {:accept :edn})
-        body (edn/read-string (:body response))
         ;;latest-version (:latest_version body) ;; "3.82"
         ;;latest-release (:latest_release body) ;; "3.82"
-        ]
-
+        body (edn/read-string (:body response))]
     (->> (:recent_versions body)
          ;; drops download stats
          (map #(:version %)))))
 
 (defn sh-exec [& rest]
-  (let [result (apply clojure.java.shell/sh rest)]
+  "Execute shell command via clojure.java.shell/sh"
+  (let [result (apply sh rest)]
     (println result)
-
-    ;;  Assert failed: {:exit 1, :out "On branch 2.9.12.71+shadow-cljs\nnothing to
-    ;; commit, working tree clean\n", :err ""} (= 0 (:exit result))
     (assert (= 0 (:exit result)) result)))
 
 (defn lein-generate-from-template [version option]
@@ -64,16 +60,17 @@
     ;; Git Add everything as is to avoid touching this part in the future
     (sh-exec "git" "add" ".")
 
-    (sh-exec "git" "commit" "-m" (clojure.string/trim (str "lein new luminus luminusdiff --template-version " version " " option)))
+    (sh-exec "git" "commit" "-m" (str/trim (str "lein new luminus luminusdiff --template-version " version " " option)))
 
     (sh-exec "git" "push" "origin" branch-name)))
 
-(defn retrieve-branches []
+(defn retrieve-luminusdiff-branches []
   "Retrieve remote git branches from github"
-  (let [res (clojure.java.shell/sh "bash" "-c" "git ls-remote --heads | awk '{print $2}' | grep 'refs/heads/' | sed 's:refs/heads/::'")]
+  (let [res (sh "bash" "-c" "git ls-remote --heads | awk '{print $2}' | grep 'refs/heads/' | sed 's:refs/heads/::'")]
     (assert (= 0 (:exit res)) res)
-
-    (clojure.string/split-lines (-> res :out))))
+    (-> (str/split-lines (-> res :out))
+        ;; exclude technical branches for proper stats
+        (remove #{"master" "blank"}))))
 
 (defn all-combinations [versions]
   "Return all combinations of template install options for the given versions
@@ -84,22 +81,20 @@
           versions))))
 
 (defn foo []
-  (let [oldest-version "2.9.12.70"
+  (let [oldest-version "3.0.0"
         versions (->> (retrieve-lein-template-versions)
                       (filter #(= 1 (version-compare %1 oldest-version))))
 
-        _all-combinations (all-combinations versions)
-        missing-version-options (remove
-                              (set (retrieve-branches))
-                              _all-combinations)
-        ;;FIXME exclude develop/master/clean for proper counting
+        missing-version-options (remove (set (retrieve-luminusdiff-branches))
+                                        (all-combinations versions))
 
-        __ (println "missing count: " (count missing-version-options) "/" (count _all-combinations))]
+        __ (println "missing count: " (count missing-version-options))]
     (doseq [version-option missing-version-options]
       (println "Saving " version-option)
 
-      (let [[version option] (clojure.string/split version-option #"\+")]
+      (let [[version option] (str/split version-option #"\+")]
         ;; NOTE: option could be blank
-        ;; (println version option)
-        (generate-template-and-git-push version option)))))
+        (generate-template-and-git-push version option))))
+
+  (System/exit 0))
 
