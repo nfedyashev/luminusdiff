@@ -51,22 +51,17 @@
   "Generate a new luminus template based on completely clean repo/state.
   The goal here is to have the cleanest before/after state possible for proper diffs"
   (let [branch-name (str version (when option (str "+" option)))]
-    (println "git checkout blank")
     (sh-exec "git" "checkout" "blank")
     ;; TODO ensure it is blank indeed?
-    (println (str "git checkout -b" branch-name))
     (sh-exec "git" "checkout" "-b" branch-name)
 
     (lein-generate-from-template version option)
 
     ;; Git Add everything as is to avoid touching this part in the future
-    (println "git add .")
     (sh-exec "git" "add" ".")
 
-    (println "git commit -m")
     (sh-exec "git" "commit" "-m" (str/trim (str "lein new luminus luminusdiff --template-version " version " " option)))
 
-    (println (str "git push origin" branch-name))
     (sh-exec "git" "push" "origin" branch-name)))
 
 (defn retrieve-luminusdiff-branches []
