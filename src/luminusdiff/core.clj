@@ -52,10 +52,6 @@
   The goal here is to have the cleanest before/after state possible for proper diffs"
   (let [branch-name (str version (when option (str "+" option)))]
     (try
-      (println "before000")
-      ;; (sh-exec "git" "pull" "origin" "blank")
-      (sh-exec "git" "fetch" "origin")
-      (sh-exec "git" "branch" "-a")
       (sh-exec "git" "checkout" "--track" "origin/blank")
       ;; (sh-exec "git" "checkout" "blank")
       (catch Exception e
@@ -100,6 +96,13 @@
                                         (all-combinations versions))
 
         __ (println "missing branches: " (count missing-version-options))]
+
+    (sh-exec "git" "config" "--global" "user.email" "nfedyashev@gmail.com")
+    (sh-exec "git" "config" "--global" "user.name" "Nikita Fedyashev")
+    ;; (sh-exec "git" "pull" "origin" "blank")
+    (sh-exec "git" "fetch" "origin")
+    (sh-exec "git" "branch" "-a")
+
     (doseq [version-option missing-version-options]
       (println "Saving " version-option)
 
