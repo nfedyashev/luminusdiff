@@ -12,12 +12,8 @@
 (defn retrieve-lein-template-versions []
   "Retrieve lein-template versions from clojars.org"
   (let [response (client/get "https://clojars.org/api/artifacts/luminus/lein-template" {:accept :edn})
-        ;;latest-version (:latest_version body) ;; "3.82"
-        ;;latest-release (:latest_release body) ;; "3.82"
         body (edn/read-string (:body response))]
-    (->> (:recent_versions body)
-         ;; drops download stats
-         (map #(:version %)))))
+    (->> (:recent_versions body) (map #(:version %)))))
 
 (defn sh-exec [& rest]
   "Execute shell command via clojure.java.shell/sh"
@@ -51,14 +47,7 @@
   "Generate a new luminus template based on completely clean repo/state.
   The goal here is to have the cleanest before/after state possible for proper diffs"
   (let [branch-name (str version (when option (str "+" option)))]
-    (try
-      (sh-exec "git" "checkout" "blank")
-      ;; (sh-exec "git" "checkout" "blank")
-      (catch Exception e
-        ;; NOTE: this is mostly for Github Action - when it runs the workflow job it doesn't have a blank branch checked out, so "git checkout blank" would fail
-        (println "*git checkout blank* failed" (ex-data) ". Attempting to track remote branch instead")
-        ;; (sh-exec "git" "checkout" "--track" "origin/blank")
-        ))
+    (sh-exec "git" "checkout" "blank")
 
     (sh-exec "git" "checkout" "-b" branch-name)
 
@@ -95,13 +84,12 @@
         missing-version-options (remove (set (retrieve-luminusdiff-branches))
                                         (all-combinations versions))
 
-        __ (println "missing branches: " (count missing-version-options))]
+        _ (println "missing branches: " (count missing-version-options))]
 
     (sh-exec "git" "config" "--global" "user.email" "nfedyashev@gmail.com")
     (sh-exec "git" "config" "--global" "user.name" "Nikita Fedyashev")
-    ;; (sh-exec "git" "pull" "origin" "blank")
+
     (sh-exec "git" "fetch" "origin")
-    (sh-exec "git" "branch" "-a")
 
     (doseq [version-option missing-version-options]
       (println "Saving " version-option)
