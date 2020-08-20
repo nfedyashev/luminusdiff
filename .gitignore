@@ -3,10 +3,14 @@
 /classes
 /checkouts
 pom.xml
+dev-config.edn
+test-config.edn
 *.jar
 *.class
 /.lein-*
+profiles.clj
 /.env
 .nrepl-port
 
+/node_modules
 /log
