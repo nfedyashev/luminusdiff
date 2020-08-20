@@ -53,13 +53,15 @@
   (let [branch-name (str version (when option (str "+" option)))]
     (try
       (println "before000")
-      (sh-exec "git" "pull" "origin" "blank")
+      ;; (sh-exec "git" "pull" "origin" "blank")
+      (sh-exec "git" "checkout" "--track" "origin/blank")
       (sh-exec "git" "branch" "-a")
-      (sh-exec "git" "checkout" "blank")
+      ;; (sh-exec "git" "checkout" "blank")
       (catch Exception e
         ;; NOTE: this is mostly for Github Action - when it runs the workflow job it doesn't have a blank branch checked out, so "git checkout blank" would fail
         (println "*git checkout blank* failed" (ex-data) ". Attempting to track remote branch instead")
-        (sh-exec "git" "checkout" "--track" "origin/blank")))
+        ;; (sh-exec "git" "checkout" "--track" "origin/blank")
+        ))
 
     (sh-exec "git" "checkout" "-b" branch-name)
 
