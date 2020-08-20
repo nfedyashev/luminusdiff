@@ -53,6 +53,7 @@
   (let [branch-name (str version (when option (str "+" option)))]
     (try
       (println "before000")
+      (sh-exec "git" "pull" "origin" "blank")
       (sh-exec "git" "branch" "-a")
       (sh-exec "git" "checkout" "blank")
       (catch Exception e
