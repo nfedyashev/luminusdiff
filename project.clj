@@ -19,7 +19,7 @@
                  [org.clojure/clojure "1.9.0"]
                  [org.clojure/tools.cli "0.3.7"]
                  [org.clojure/tools.logging "0.4.1"]
-                 [org.postgresql/postgresql "42.2.2"]
+                 [com.impossibl.pgjdbc-ng/pgjdbc-ng "0.6"]
                  [org.webjars.bower/tether "1.4.4"]
                  [org.webjars/bootstrap "4.1.1"]
                  [org.webjars/font-awesome "5.1.0"]
