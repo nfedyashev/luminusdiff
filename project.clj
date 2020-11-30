@@ -19,7 +19,7 @@
                  [org.clojure/clojure "1.9.0"]
                  [org.clojure/tools.cli "0.3.7"]
                  [org.clojure/tools.logging "0.4.1"]
-                 [org.postgresql/postgresql "42.2.2"]
+                 [com.impossibl.pgjdbc-ng/pgjdbc-ng "0.6"]
                  [org.webjars.bower/tether "1.4.4"]
                  [org.webjars/bootstrap "4.1.1"]
                  [org.webjars/font-awesome "5.1.0"]
@@ -50,7 +50,7 @@
    :dev           [:project/dev :profiles/dev]
    :test          [:project/dev :project/test :profiles/test]
 
-   :project/dev  {:jvm-opts ["-Dconf=dev-config.edn" "--add-modules" "java.xml.bind"]
+   :project/dev  {:jvm-opts ["-Dconf=dev-config.edn" #_"--add-modules" #_"java.xml.bind"]
                   :dependencies [[expound "0.7.1"]
                                  [pjstadig/humane-test-output "0.8.3"]
                                  [prone "1.6.0"]
