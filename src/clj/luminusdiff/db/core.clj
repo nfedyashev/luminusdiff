@@ -7,13 +7,9 @@
     [conman.core :as conman]
     [luminusdiff.config :refer [env]]
     [mount.core :refer [defstate]])
-  (:import org.postgresql.util.PGobject
-           java.sql.Array
-           clojure.lang.IPersistentMap
-           clojure.lang.IPersistentVector
-           [java.sql
-            BatchUpdateException
-            PreparedStatement]))
+  (:import
+   com.impossibl.postgres.api.jdbc.PGNotificationListener))
+
 (defstate ^:dynamic *db*
   :start (if-let [jdbc-url (env :database-url)]
            (conman/connect! {:jdbc-url jdbc-url})
@@ -24,24 +20,6 @@
 
 (conman/bind-connection *db* "sql/queries.sql")
 
-(extend-protocol jdbc/IResultSetReadColumn
-  Array
-  (result-set-read-column [v _ _] (vec (.getArray v)))
-
-  PGobject
-  (result-set-read-column [pgobj _metadata _index]
-    (let [type  (.getType pgobj)
-          value (.getValue pgobj)]
-      (case type
-        "json" (parse-string value true)
-        "jsonb" (parse-string value true)
-        "citext" (str value)
-        value))))
-
-(defn to-pg-json [value]
-      (doto (PGobject.)
-            (.setType "jsonb")
-            (.setValue (generate-string value))))
 
 (extend-type clojure.lang.IPersistentVector
   jdbc/ISQLParameter
